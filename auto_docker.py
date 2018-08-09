@@ -1,45 +1,42 @@
 import os
 import sys
+from argparse import ArgumentParser
 
 
 
 def main():
-
-    print("-------------------------------------")
-    print("USAGE: auto_docker.py <repository> --host --dns=<DNS SERVER IP> --name=<NAME OF CONTAINER>\n")
-
-    print("--host                :   Setup docker container to use host network. If not set "
-          "the container will be set to the docker network")
-
-    print("--dns=<DNS SERVER IP> :   Set the docker container's dns address\n")
-
-    print("-------------------------------------")
-
     # set global variables
     host = False
     dns = None
     name = ""
     repo = ""
+    volume = None
 
-    # set values from command line arguments
-    if len(sys.argv) != 1:
-        repo = sys.argv[1]
+    parser = ArgumentParser(description="Automatically create containers and setup networks with a CLI")
 
-        # check for any options
-        if sys.argv[2]:
-            if "--host" in sys.argv[2]:
-                host = True
-        if sys.argv[3]:
-            dns = sys.argv[3].split('=')[1]
-        if sys.argv[4]:
-            name = sys.argv[4].split('=')[1]
-    else:
-        print("No repository or options specified")
-        exit()
+    parser.add_argument('--host', action='store_true', help="Put the docker container on the host network")
+    parser.add_argument('--name', help="Name of the container")
+    parser.add_argument('--dns', help="DNS address of the container")
+    parser.add_argument('--repo', help="Docker Repository to build the container from")
+    parser.add_argument('--volume', help="Volume to create/attach to the container")
+    parser.add_argument('--volume_target', help="Target for volume to mount to inside the container." +
+                                                " Will default to '~/' directory")
+
+    args = parser.parse_args()
+
+    host = args.host
+    dns = args.dns
+    name = args.name
+    repo = args.repo
+    volume = args.repo
+    vol_target = args.volume_target
 
     if host:
-        host_docker(repo, dns, name)
-
+        if volume:
+            if vol_target:
+                host_docker(repo, dns, name, volume, vol_target)
+            else:
+                host_docker(repo, dns, name, volume)
     else:
         non_host_docker(repo, name)
 
@@ -60,17 +57,41 @@ def is_file(file):
 :param file
 :returns string
 
-runs the docker command to create a 
+runs the docker command to create a container and connect to it and mount a volume if it is provided.
 """
 
 
-def host_docker(repo, dns="1.1.1.1", name=""):
+def host_docker(repo, dns=None, name="", volume=None, volume_target="/root"):
+        if dns is None:
+            if volume is not None:
+                # os.system("docker volume create {0}".format(volume))
+                if volume_target is not None:
+                    os.system("docker run -it --network host --name {0} -v {2}:{3} {1}   /bin/bash"
+                              .format(name, repo, volume, volume_target))
+                else:
+                    os.system("docker run -it --network host --name {0} -v {2}:{3} {1}  /bin/bash"
+                              .format(name, repo, volume, volume_target))
+        else:
+            if volume is not None:
+                os.system("docker volume create {0}".format(volume))
+                if volume_target is not None:
+                    os.system("docker run -it --network host --name {0} -v {2}:{3} {1} /bin/bash"
+                              .format(name, repo, volume, volume_target))
+                else:
+                    os.system("docker run -it --network host --name {0}  -v {2}:{3} {1}  /bin/bash"
+                              .format(name, repo, volume, volume_target))
+            else:
+                os.system("docker run -it --network host --dns={0} --name {1} {2} /bin/bash".format(dns, name, repo))
 
-        os.system("docker run -it --network=host --dns={0} --name {1} {2} /bin/bash".format(dns, name, repo))
 
-def non_host_docker(repo, name=""):
-
-        os.system("docker run -it --name {0} {1} /bin/bash".format(name, repo))
+def non_host_docker(repo, name="", volume="", volume_target="/root"):
+        if volume is not None:
+            if volume_target is not None:
+                os.system("docker run -it --network host --name {0} -v {2}:{3} {1}   /bin/bash"
+                          .format(name, repo, volume, volume_target))
+            else:
+                os.system("docker run -it --network host --name {0} {1} /bin/bash"
+                          .format(name, repo))
 
 main()
 
