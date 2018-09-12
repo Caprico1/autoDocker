@@ -2,6 +2,10 @@
 Automatically setup docker containers on the host machines network
 
 
+## Requirements:
+* Python3
+* =< Docker 18.06.0-ce
+
 ## Arguments
 ```
 usage: auto_docker.py [-h] [--host] [--name NAME] [--dns DNS] [--repo REPO]
@@ -42,8 +46,5 @@ SSH:
 
 ```
 
-## Requirements:
-* Python3
-* =< Docker 18.06.0-ce
 
 
