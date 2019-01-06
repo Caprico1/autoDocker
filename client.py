@@ -11,13 +11,14 @@ import paramiko
 '''
 def open_client(hostname, port, username, password):
     sock = socket()
-    hostname = input("Host: ")
-    port = int(input("Port: "))
-    username = input("User: ")
-    password = input("Passphrase: ")
+    # hostname = input("Host: ")
+    # port = int(input("Port: "))
+    # username = input("User: ")
+    # password = input("Passphrase: ")
 
     try:
         sock.connect((hostname, port))
+
 
         client = paramiko.transport.Transport(sock)
 
@@ -25,11 +26,15 @@ def open_client(hostname, port, username, password):
 
         client.auth_password(username=username, password=password)
         cmd_channel = client.open_session()
+        # print(cmd_channel)
+        # exit()
 
-        cmd_channel.invoke_shell()
+        channel = cmd_channel.invoke_shell()
 
-        return cmd_channel
+        return channel
 
-    except error():
+    except Exception:
         print('[-] connection failed')
         exit(1)
+
+

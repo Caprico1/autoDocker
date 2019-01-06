@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 from paramiko import SSHClient, AutoAddPolicy
 from localDocker import host_docker, non_host_docker
 from serverDocker import server_host_docker, server_non_host_docker
-
+from client import open_client
 
 def main():
     # initialize global variables
@@ -40,6 +40,7 @@ def main():
     ssh_group.add_argument('--ssh-port', help="Connect to server with specified port")
     ssh_group.add_argument('--ssh-user', help="Connect to server with specified user")
     ssh_group.add_argument('--ssh-pass', help="Connect to server with specified password")
+    ssh_group.add_argument('--shadow', help="Lurking Container...")
 
     # get arguments
     args = parser.parse_args()
@@ -58,18 +59,16 @@ def main():
     ssh_host = args.ssh_host
     ssh_port = args.ssh_port
     ssh_user = args.ssh_user
-    ssh_pass = args.ssh_pass.replace("\"","")
-    print(ssh_pass)
+    ssh_pass = args.ssh_pass.replace('\'', '')
+    shadow = args.shadow
     # Check to see if all SSH arguments are present in memory before creating a client. Kill if partial arguments.
     # Proceed on local machine if none are present
     if ssh_host and ssh_user and ssh_pass:
         if ssh_port is None:
             ssh_port = 22
         print("Auto Docker Running on Remote Server")
-        client = SSHClient()
-        print("Client Created")
-        client.set_missing_host_key_policy(AutoAddPolicy())
-        client.connect(hostname=ssh_host, port=ssh_port, username=ssh_user, password=ssh_pass)
+
+        channel = open_client(ssh_host, ssh_port, ssh_user, ssh_pass)
     elif ssh_host is None or ssh_port is None or ssh_user is None or ssh_pass is None:
         print("All SSH arguments are required to use SSH.")
         print("Auto docker will exit now...")

