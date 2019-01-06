@@ -1,10 +1,11 @@
 import os
+import json
 from argparse import ArgumentParser
 from paramiko import SSHClient, AutoAddPolicy
 from localDocker import host_docker, non_host_docker
 from serverDocker import server_host_docker, server_non_host_docker
 from client import open_client
-
+from configs import config_file
 def main():
     # initialize global variables
     host = False
@@ -20,6 +21,22 @@ def main():
     ssh_user = None
     ssh_pass = None
     client = None
+
+    print("""
+    
+'||''|.                '||     '||''|.          .        ,     ,    ___
+ ||   ||   ...    ....  ||  ..  ||   ||   ... .||.      (\____/)   (o*o)  
+ ||    ||.|  '|..|   '' || .'   ||'''|. .|  '|.||        (_oo_)     | | 
+||    ||||   ||||      ||'|.   ||    ||||   ||||          (O)      ( > )
+.||...|'  '|..|' '|...'.||. ||..||...|'  '|..|''|.'      __||__    /   \\
+
+"Good. Good. Back to the rusting septic system of this FUTURISTIC SPACE SHIP!!!"
+
+     
+    """)
+
+    config_file_name = "configs.json"
+
 
     parser = ArgumentParser(description="Automatically create containers and setup networks with a CLI")
 
@@ -42,8 +59,15 @@ def main():
     ssh_group.add_argument('--ssh-pass', help="Connect to server with specified password")
     ssh_group.add_argument('--shadow', help="Lurking Container...")
 
+    config_group = parser.add_argument_group("Configurations", description="Save and Load configured docker containers")
+    config_group.add_argument('--config', action='store_true', help="Save configured docker files in a text file.")
+    config_group.add_argument('--config-manager', action='store_true', help="List and select a configuration of saved configurations")
     # get arguments
     args = parser.parse_args()
+
+    if args.config == True:
+        config_file(args)
+
 
     # Assign Arguments to Variables
     host = args.host
