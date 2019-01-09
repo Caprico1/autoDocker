@@ -51,7 +51,7 @@ def main():
     parser.add_argument('--share_path_target', help="Path to mount host path to the container.")
     parser.add_argument('--command', help="Command to be ran inside the container.")
 
-    ssh_group = parser.add_argument_group('SSH', description="Connect to an external server with "
+    ssh_group = parser.add_argument_group('SSH', description=" IN_DEVLOPMENT AND NOT READY FOR USE!!!\nConnect to an external server with "
                                                              "docker installed while using AutoDocker")
     ssh_group.add_argument('--ssh-host', help="Connect to server to run commands. (Default Port selected is 22)")
     ssh_group.add_argument('--ssh-port', help="Connect to server with specified port")
