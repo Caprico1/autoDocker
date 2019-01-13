@@ -35,8 +35,6 @@ def main():
      
     """)
 
-    config_file_name = "configs.json"
-
 
     parser = ArgumentParser(description="Automatically create containers and setup networks with a CLI")
 
